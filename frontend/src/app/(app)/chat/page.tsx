@@ -1,21 +1,17 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useAuth } from "@/features/auth/hooks/useAuth";
+import ChatWindow from "@/features/chat/components/ChatWindow";
+import { useDocuments } from "@/features/documents/hooks/useDocuments";
 
-export default function ChatPage() {
-  const { user, logout } = useAuth();
+export default function NewChatPage() {
   const router = useRouter();
+  const { documents } = useDocuments();
 
   return (
-    <div className="p-8">
-      <p className="mb-4">Signed in as <b>{user?.name}</b> ({user?.email})</p>
-      <button
-        onClick={() => { logout(); router.push("/login"); }}
-        className="rounded-lg bg-slate-800 px-4 py-2 text-sm text-white"
-      >
-        Log out
-      </button>
-    </div>
+    <ChatWindow
+      documents={documents}
+      onConversationCreated={(id) => router.replace(`/chat/${id}`)}
+    />
   );
 }
