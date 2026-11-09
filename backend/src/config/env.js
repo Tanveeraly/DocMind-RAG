@@ -26,4 +26,6 @@ export default {
     bucketName: process.env.S3_BUCKET_NAME,
   },
   openaiApiKey: process.env.OPENAI_API_KEY, // needed later, in the embeddings block
+  geminiApiKey: process.env.GEMINI_API_KEY, // needed later, in the embeddings block
+  geminiChatModel: process.env.GEMINI_CHAT_MODEL || "gemini-3.1-flash-lite",
 };

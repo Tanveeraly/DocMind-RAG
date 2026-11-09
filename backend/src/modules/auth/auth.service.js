@@ -1,7 +1,11 @@
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import config from "../../config/env.js";
-import * as model from "./auth.model.js";
+import model from "./auth.model.js";
+
+const jwtSecret = config.jwtSecret;
+const jwtExpiresIn = config.jwtExpiresIn;
+
 
 function httpError(status, message) {
   const err = new Error(message);

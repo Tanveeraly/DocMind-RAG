@@ -1,34 +1,29 @@
-import bcrypt from "bcryptjs";
-import jwt from "jsonwebtoken";
-import env from "../../config/env.js";
-import * as model from "./auth.model.js";
+import pool from "../../config/db.js";
 
-function httpError(status, message) {
-  const err = new Error(message);
-  err.status = status;
-  return err;
+ async function findByEmail(email) {
+  const { rows } = await pool.query(
+    "SELECT id, name, email, password_hash FROM users WHERE email = $1",
+    [email]
+  );
+  return rows[0] || null;
 }
 
-function signToken(user) {
-  return jwt.sign({ sub: user.id }, env.jwtSecret, { expiresIn: env.jwtExpiresIn });
+ async function findById(id) {
+  const { rows } = await pool.query(
+    "SELECT id, name, email, created_at FROM users WHERE id = $1",
+    [id]
+  );
+  return rows[0] || null;
 }
 
-async function register({ name, email, password }) {
-  const normalized = email.trim().toLowerCase();
-  if (await model.findByEmail(normalized)) {
-    throw httpError(409, "Email already registered");
-  }
-  const passwordHash = await bcrypt.hash(password, 12);
-  const user = await model.create({ name: name.trim(), email: normalized, passwordHash });
-  return { user, token: signToken(user) };
+ async function create({ name, email, passwordHash }) {
+  const { rows } = await pool.query(
+    `INSERT INTO users (name, email, password_hash)
+     VALUES ($1, $2, $3)
+     RETURNING id, name, email, created_at`,
+    [name, email, passwordHash]
+  );
+  return rows[0];
 }
 
- async function login({ email, password }) {
-  const row = await model.findByEmail(email.trim().toLowerCase());
-  const ok = row && (await bcrypt.compare(password, row.password_hash));
-  if (!ok) throw httpError(401, "Invalid email or password");
-  const user = { id: row.id, name: row.name, email: row.email };
-  return { user, token: signToken(user) };
-}
-
-export default { register, login };
+export default { findByEmail, findById, create };

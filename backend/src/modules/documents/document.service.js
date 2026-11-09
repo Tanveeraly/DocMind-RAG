@@ -1,6 +1,8 @@
 
 import pdfParse from "pdf-parse/lib/pdf-parse.js"; // avoids the package's debug-mode quirk
+
 import { chunkText } from "../../utils/chunker.js";
+import { embedDocument } from "../embeddings/embedding.service.js";
 import {
   uploadToS3,
   deleteFromS3,
@@ -37,8 +39,10 @@ export async function processUpload(file, userId) {
   }
 
   const s3Key = await uploadToS3(file, userId);
+
+  let doc;
   try {
-    return await model.createWithChunks({
+    doc = await model.createWithChunks({
       userId,
       originalName: file.originalname,
       s3Key,
@@ -49,7 +53,17 @@ export async function processUpload(file, userId) {
     await deleteFromS3(s3Key).catch(() => {}); // don't leave an orphan file in S3
     throw err;
   }
+
+  // If embedding fails (quota, network), keep the upload. Chunks stay unembedded and can be retried.
+  try {
+    await embedDocument(doc.id);
+  } catch (err) {
+    console.error("Embedding failed:", err.message);
+  }
+
+  return doc;
 }
+
 
 export const list = (userId) => model.listByUser(userId);
 

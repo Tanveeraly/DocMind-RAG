@@ -22,7 +22,7 @@ CREATE TABLE IF NOT EXISTS chunks (
   document_id INTEGER NOT NULL REFERENCES documents(id) ON DELETE CASCADE,
   chunk_index INTEGER NOT NULL,
   content TEXT NOT NULL,
-  embedding vector(1536)
+  embedding vector(768)
 );
 
 CREATE TABLE IF NOT EXISTS conversations (
