@@ -201,11 +201,78 @@ Route names for planned endpoints may change as they are built.
 - Every data query is scoped by the authenticated user's ID.
 - Set a monthly spending limit on your OpenAI account and a budget alert on AWS.
 
-## Deployment
+## Running with Docker (Local)
 
-- **Backend (Render):** deploy the `backend` folder as a Web Service. Set all backend environment variables in the Render dashboard, and use a managed PostgreSQL instance that supports `pgvector`. Run `db/schema.sql` against it once.
-- **Frontend (Vercel):** deploy the `frontend` folder and set `VITE_API_URL` to your Render URL.
-- **CORS:** set `FRONTEND_URL` on the backend to your Vercel URL.
+Run the entire stack locally with a single command (PostgreSQL + pgvector, Backend, Frontend):
+
+```bash
+docker compose up --build
+```
+
+- **Frontend:** `http://localhost:3000`
+- **Backend API:** `http://localhost:5000`
+- **Postgres Database:** `localhost:5432` (with `pgvector` enabled and schema auto-initialized)
+
+---
+
+## Deployment (Render & Vercel)
+
+DocMind is configured for zero-downtime, automated deployments:
+- **Backend on Render:** Run as a Docker Web Service with Render PostgreSQL (pgvector).
+- **Frontend on Vercel:** Next.js Edge Deployment.
+
+### 1. Backend Setup on Render
+
+1. Create a **PostgreSQL Database** on [Render](https://render.com):
+   - Name: `docmind-db`
+   - Database: `docmind`
+   - Run the initial schema: Connect with `psql` or Render Query Tool and execute `backend/db/schema.sql` (enables `vector` extension and creates tables).
+2. Create a **New Web Service**:
+   - Connect your GitHub repository.
+   - Choose **Docker** runtime (or apply Blueprint via `render.yaml`).
+   - Root Directory: `backend`
+   - Dockerfile Path: `backend/Dockerfile`
+   - Health Check Path: `/api/health`
+3. Configure Backend Environment Variables in Render:
+   - `DATABASE_URL`: Your Render internal database connection string.
+   - `FRONTEND_URL`: Your Vercel frontend URL (e.g. `https://docmind.vercel.app`).
+   - `JWT_SECRET`: A long random secret string.
+   - `AWS_REGION`, `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`, `S3_BUCKET_NAME`: AWS credentials.
+   - `OPENAI_API_KEY` and/or `GEMINI_API_KEY`.
+4. Copy the **Deploy Hook URL** from `Settings > Deploy Hook` (needed for GitHub Actions).
+
+### 2. Frontend Setup on Vercel
+
+1. Import your repository into [Vercel](https://vercel.com):
+   - Root Directory: `frontend`
+   - Framework: **Next.js**
+2. Set Environment Variable in Vercel:
+   - `NEXT_PUBLIC_API_URL`: Your Render backend URL (e.g. `https://docmind-backend.onrender.com`).
+3. Deploy!
+
+---
+
+## Automated CI/CD (GitHub Actions)
+
+Every commit to `main` and all Pull Requests are automatically verified and deployed:
+
+- **`.github/workflows/ci.yml`**:
+  - Runs on PRs and pushes to `main`.
+  - Performs syntax validation, TypeScript checks, Next.js build, and builds both backend & frontend Docker images.
+- **`.github/workflows/deploy.yml`**:
+  - Automatically deploys the backend to Render via webhook.
+  - Automatically deploys the frontend to Vercel via Vercel Action.
+
+### GitHub Repository Secrets Setup
+Add the following secrets under **Settings > Secrets and variables > Actions**:
+
+| Secret Name | Description | Source |
+| --- | --- | --- |
+| `RENDER_DEPLOY_HOOK_URL` | Render Deploy Webhook URL | Render Service > Settings > Deploy Hook |
+| `VERCEL_TOKEN` | Vercel Personal Access Token | Vercel Account Settings > Tokens |
+| `VERCEL_ORG_ID` | Vercel Team/Org ID | Project Settings > General |
+| `VERCEL_PROJECT_ID` | Vercel Project ID | Project Settings > General |
+
 
 ## Roadmap
 

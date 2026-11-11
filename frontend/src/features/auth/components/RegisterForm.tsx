@@ -41,9 +41,9 @@ export default function RegisterForm() {
       <Input id="password" label="Password" type="password" required autoComplete="new-password"
         value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Choose a password" />
       <Button type="submit" loading={submitting}>Create account</Button>
-      <p className="text-center text-sm text-slate-400">
+      <p className="text-center text-sm text-slate-500">
         Already registered?{" "}
-        <Link href="/login" className="text-indigo-400 hover:underline">Sign in</Link>
+        <Link href="/login" className="font-medium text-blue-600 hover:text-blue-700 hover:underline">Sign in</Link>
       </p>
     </form>
   );

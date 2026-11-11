@@ -12,10 +12,12 @@ export default function DocumentsPage() {
   const { upload, uploading, error: uploadError } = useUpload(refresh);
 
   return (
-    <div className="mx-auto max-w-3xl space-y-6 p-8">
+    <div className="mx-auto max-w-3xl space-y-8 p-8">
       <div>
-        <h1 className="text-2xl font-semibold">Documents</h1>
-        <p className="text-sm text-slate-500">Upload PDFs, then ask questions about them in Chat.</p>
+        <h1 className="text-2xl font-bold tracking-tight text-slate-900">Documents</h1>
+        <p className="mt-1 text-sm text-slate-500">
+          Upload PDF documents to index and search with RAG. You can query them anytime in Chat.
+        </p>
       </div>
 
       <UploadBox onFile={upload} uploading={uploading} error={uploadError} />

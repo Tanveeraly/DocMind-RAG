@@ -38,9 +38,9 @@ export default function LoginForm() {
       <Input id="password" label="Password" type="password" required autoComplete="current-password"
         value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Your password" />
       <Button type="submit" loading={submitting}>Sign in</Button>
-      <p className="text-center text-sm text-slate-400">
+      <p className="text-center text-sm text-slate-500">
         No account?{" "}
-        <Link href="/register" className="text-indigo-400 hover:underline">Create one</Link>
+        <Link href="/register" className="font-medium text-blue-600 hover:text-blue-700 hover:underline">Create one</Link>
       </p>
     </form>
   );

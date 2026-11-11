@@ -1,0 +1,59 @@
+name: CD Deploy (Render & Vercel)
+
+on:
+  push:
+    branches: [ main, master ]
+  workflow_dispatch:
+
+concurrency:
+  group: production-deployment
+  cancel-in-progress: false
+
+jobs:
+  deploy-backend-render:
+    name: Deploy Backend to Render
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger Render Deploy Hook
+        if: env.RENDER_DEPLOY_HOOK_URL != ''
+        env:
+          RENDER_DEPLOY_HOOK_URL: ${{ secrets.RENDER_DEPLOY_HOOK_URL }}
+        run: |
+          echo "Triggering Render zero-downtime deployment..."
+          curl -sS -X POST "${RENDER_DEPLOY_HOOK_URL}"
+          echo "Render deployment triggered successfully."
+
+      - name: Notify If Deploy Hook Missing
+        if: env.RENDER_DEPLOY_HOOK_URL == ''
+        env:
+          RENDER_DEPLOY_HOOK_URL: ${{ secrets.RENDER_DEPLOY_HOOK_URL }}
+        run: |
+          echo "Warning: RENDER_DEPLOY_HOOK_URL secret not set. Skipping automated Render webhook trigger."
+          echo "Add RENDER_DEPLOY_HOOK_URL to GitHub Repository Secrets to automate."
+
+  deploy-frontend-vercel:
+    name: Deploy Frontend to Vercel
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Deploy to Vercel Action
+        if: env.VERCEL_TOKEN != ''
+        uses: amondnet/vercel-action@v25
+        with:
+          vercel-token: ${{ secrets.VERCEL_TOKEN }}
+          vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
+          vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
+          vercel-args: "--prod"
+          working-directory: ./frontend
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+
+      - name: Notify If Vercel Secrets Missing
+        if: env.VERCEL_TOKEN == ''
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+        run: |
+          echo "Warning: VERCEL_TOKEN secret not set. Skipping automated Vercel deployment."
+          echo "Add VERCEL_TOKEN, VERCEL_ORG_ID, and VERCEL_PROJECT_ID to GitHub Secrets to automate."

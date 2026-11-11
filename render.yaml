@@ -1,0 +1,47 @@
+services:
+  # DocMind Backend Express API
+  - type: web
+    name: docmind-backend
+    runtime: docker
+    dockerfilePath: ./backend/Dockerfile
+    dockerContext: ./backend
+    plan: free
+    region: oregon
+    healthCheckPath: /api/health
+    envVars:
+      - key: PORT
+        value: 5000
+      - key: NODE_ENV
+        value: production
+      - key: DATABASE_URL
+        fromDatabase:
+          name: docmind-db
+          property: connectionString
+      - key: FRONTEND_URL
+        sync: false # Set to your Vercel deployment URL (e.g. https://docmind.vercel.app)
+      - key: JWT_SECRET
+        generateValue: true
+      - key: JWT_EXPIRES_IN
+        value: 7d
+      - key: AWS_REGION
+        sync: false
+      - key: AWS_ACCESS_KEY_ID
+        sync: false
+      - key: AWS_SECRET_ACCESS_KEY
+        sync: false
+      - key: S3_BUCKET_NAME
+        sync: false
+      - key: OPENAI_API_KEY
+        sync: false
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: GEMINI_CHAT_MODEL
+        value: gemini-3.1-flash-lite
+
+databases:
+  # Managed PostgreSQL with pgvector support
+  - name: docmind-db
+    plan: free
+    region: oregon
+    databaseName: docmind
+    user: docmind

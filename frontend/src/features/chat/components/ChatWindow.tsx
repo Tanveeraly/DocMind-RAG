@@ -25,12 +25,14 @@ export default function ChatWindow({ conversationId, documents = [], onConversat
     <div className="flex h-full flex-1 flex-col">
       {isNewChat && documents.length > 0 && (
         <div className="flex items-center gap-3 border-b border-slate-200 bg-white px-6 py-3 text-sm">
-          <label htmlFor="scope" className="text-slate-600">Chat with:</label>
+          <label htmlFor="scope" className="text-xs font-semibold uppercase tracking-wider text-slate-500">
+            Document context:
+          </label>
           <select
             id="scope"
             value={documentId}
             onChange={(e) => setDocumentId(e.target.value)}
-            className="rounded-lg border border-slate-300 bg-white px-2 py-1.5"
+            className="rounded-xl border border-slate-300 bg-white px-3 py-1.5 text-xs font-medium text-slate-700 outline-none transition-all focus:border-blue-500 focus:ring-2 focus:ring-blue-500/10"
           >
             <option value="">All my documents</option>
             {documents.map((d) => (
