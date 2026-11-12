@@ -22,6 +22,11 @@ async function start() {
 }
 
 start().catch((err) => {
-  console.error("Startup failed:", err);
+  console.error("Startup failed:", err.message || err);
+  if (err.code === "ENOTFOUND") {
+    console.error(
+      "Hint: The database host could not be resolved. Please check your DATABASE_URL environment variable in Render."
+    );
+  }
   process.exit(1);
 });

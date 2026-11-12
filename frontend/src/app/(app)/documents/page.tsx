@@ -12,7 +12,8 @@ export default function DocumentsPage() {
   const { upload, uploading, error: uploadError } = useUpload(refresh);
 
   return (
-    <div className="mx-auto max-w-3xl space-y-8 p-8">
+    <div className="h-full overflow-y-auto">
+      <div className="mx-auto max-w-3xl space-y-6 p-4 sm:space-y-8 sm:p-8">
       <div>
         <h1 className="text-2xl font-bold tracking-tight text-slate-900">Documents</h1>
         <p className="mt-1 text-sm text-slate-500">
@@ -28,5 +29,6 @@ export default function DocumentsPage() {
         <DocumentList documents={documents} onDownload={download} onDelete={remove} />
       )}
     </div>
-  );
+  </div>
+);
 }

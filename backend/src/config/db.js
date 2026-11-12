@@ -4,10 +4,17 @@ import env from "./env.js";
 
 const { Pool } = pg;
 
+const isProduction = process.env.NODE_ENV === "production";
+const isCloudDb =
+  env.databaseUrl &&
+  !env.databaseUrl.includes("localhost") &&
+  !env.databaseUrl.includes("127.0.0.1") &&
+  !env.databaseUrl.includes("@postgres:");
+
 const pool = new Pool({
   connectionString: env.databaseUrl,
   ssl:
-    process.env.DATABASE_SSL === "true"
+    process.env.DATABASE_SSL === "true" || (isProduction && isCloudDb)
       ? { rejectUnauthorized: false }
       : false,
 });
