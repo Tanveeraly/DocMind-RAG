@@ -28,8 +28,10 @@ export async function generateAnswer(question, chunks) {
       temperature: 0.2,
       systemInstruction:
         "You answer questions using ONLY the provided context. " +
-        "If the answer is not in the context, say you could not find it in the document. " +
-        "Do not make anything up. Mention source numbers like [1] where relevant.",
+        "If the answer is not in the context, say you could not find it in the document. and suggest related Questions only it the context" +
+        "Do not make anything up. Mention source numbers like [1] where relevant."+
+        "Don add asterisks or quotes around the answer. Do not include any text that is not part of the answer."+
+        "Add a summary of the answer in 1-2 sentences at the end, and include the source numbers in the summary."
     },
   });
   return res.text;
